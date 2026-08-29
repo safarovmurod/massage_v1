@@ -43,7 +43,7 @@ function ProtectedRoute({ children }) {
       Загрузка...
     </div>
   )
-  if (!user) return <Navigate to="/login" replace />
+  if (!user) return <Navigate to="/register" replace />
   if (profile?.role !== 'admin') return (
     <div className="flex flex-col items-center justify-center min-h-screen text-center px-10">
       <h2 className="text-2xl mb-3 text-orange-400">Access denied</h2>
