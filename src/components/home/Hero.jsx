@@ -34,7 +34,7 @@ export default function Hero() {
     <section className="min-h-[92vh] flex items-center pt-[120px] pb-16 relative overflow-hidden" id="home">
       <motion.div
         style={{ y: bgY, opacity: bgOpacity }}
-        className="absolute top-0 right-0 w-[55%] h-full bg-cover bg-center z-0"
+        className="absolute top-0 right-0 w-[45%] h-full bg-cover bg-center z-0 hidden sm:block"
         css={{ maskImage: 'linear-gradient(to left, rgba(0,0,0,1), transparent)' }}
       >
         <div className="w-full h-full bg-cover bg-center" style={{ backgroundImage: "url('/images/cupping-therapy.jpg')" }} />
@@ -44,8 +44,8 @@ export default function Hero() {
       }} />
 
       <div className="container">
-        <motion.div variants={container} initial="hidden" animate="show" className="relative z-[2] max-w-[680px]">
-          <motion.h1 variants={item} className="mb-4 font-bold leading-tight tracking-tight" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)' }}>
+        <motion.div variants={container} initial="hidden" animate="show" className="relative z-[2] max-w-[680px] break-words">
+          <motion.h1 variants={item} className="mb-4 font-bold leading-tight tracking-tight break-words" style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', overflowWrap: 'break-word' }}>
             {titleMain} <span className="gradient-text-animated">{titleAccent}</span>
           </motion.h1>
           <motion.p variants={item} className="text-lg mb-5 max-w-[560px] text-secondary-soft">{t('hero.subtitle')}</motion.p>

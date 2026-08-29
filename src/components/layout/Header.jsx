@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Home as MuiHome, Spa as MuiSpa, ListAlt as MuiListAlt, LocalOffer as MuiLocalOffer, LocationOn as MuiLocationOn, Login as MuiLogin, PersonAdd as MuiPersonAdd } from '@mui/icons-material'
 import { useLang } from '../../contexts/LanguageContext.jsx'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
-import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon, HomeIcon, BloodFlowIcon, ListIcon, PriceIcon, MapPinIcon, LoginIcon, UserPlusIcon } from '../icons/Icons.jsx'
+import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon } from '../icons/Icons.jsx'
 import { trackWhatsAppClick, trackLanguageChange } from '../../lib/analytics.js'
 
 const WA_NUMBER = '992007336264'
@@ -39,11 +40,11 @@ export default function Header() {
   }
   const langs = ['ru', 'tj', 'en']
   const navLinks = [
-    { to: '/', label: t('nav.home'), icon: HomeIcon },
-    { to: '/#benefits', label: t('nav.benefits'), icon: BloodFlowIcon },
-    { to: '/#process', label: t('nav.process'), icon: ListIcon },
-    { to: '/#pricing', label: t('nav.prices'), icon: PriceIcon },
-    { to: '/contact', label: t('nav.contacts'), icon: MapPinIcon },
+    { to: '/', label: t('nav.home'), icon: MuiHome },
+    { to: '/#benefits', label: t('nav.benefits'), icon: MuiSpa },
+    { to: '/#process', label: t('nav.process'), icon: MuiListAlt },
+    { to: '/#pricing', label: t('nav.prices'), icon: MuiLocalOffer },
+    { to: '/contact', label: t('nav.contacts'), icon: MuiLocationOn },
   ]
 
   return (
@@ -115,7 +116,7 @@ export default function Header() {
                     transition={{ delay: 0.08 + i * 0.06, type: 'spring', stiffness: 300, damping: 24 }}
                   >
                     <Link to={link.to} className="flex items-center gap-3 px-4 py-3 text-base font-semibold rounded-2xl bg-glass text-primary-soft hover:bg-glass-hover transition-all">
-                      <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-glass-hover text-gold shrink-0"><link.icon width={20} height={20} /></span>
+                      <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-glass-hover text-gold shrink-0"><link.icon sx={{ fontSize: 20 }} /></span>
                       {link.label}
                     </Link>
                   </motion.div>
@@ -134,10 +135,10 @@ export default function Header() {
                 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
               >
                 <Link to="/login" className="btn btn-secondary btn-block flex items-center justify-center gap-2">
-                  <LoginIcon width={20} height={20} /> {t('nav.login')}
+                  <MuiLogin sx={{ fontSize: 20 }} /> {t('nav.login')}
                 </Link>
                 <Link to="/register" className="btn btn-secondary btn-block flex items-center justify-center gap-2">
-                  <UserPlusIcon width={20} height={20} /> {t('nav.register')}
+                  <MuiPersonAdd sx={{ fontSize: 20 }} /> {t('nav.register')}
                 </Link>
               </motion.div>
               <motion.a href="#" className="btn btn-primary btn-block flex items-center justify-center gap-2"
