@@ -1,17 +1,17 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { FaHome, FaSpa, FaMapMarkerAlt, FaWhatsapp } from 'react-icons/fa'
 import { useLang } from '../../contexts/LanguageContext.jsx'
-import { WhatsAppIcon } from '../icons/Icons.jsx'
 import { getWhatsAppLink } from './Header.jsx'
 import { trackWhatsAppClick } from '../../lib/analytics.js'
 
 export default function MobileBottomBar() {
   const { lang, t } = useLang()
   const items = [
-    { to: '/', icon: '🏠', label: t('mobile.home') },
-    { to: '/#pricing', icon: '💆', label: t('mobile.services') },
-    { href: getWhatsAppLink(lang), wa: true, icon: <WhatsAppIcon size={22} />, label: t('mobile.whatsapp') },
-    { to: '/contact', icon: '📍', label: t('mobile.contacts') },
+    { to: '/', icon: FaHome, label: t('mobile.home') },
+    { to: '/#pricing', icon: FaSpa, label: t('mobile.services') },
+    { href: getWhatsAppLink(lang), wa: true, icon: FaWhatsapp, label: t('mobile.whatsapp') },
+    { to: '/contact', icon: FaMapMarkerAlt, label: t('mobile.contacts') },
   ]
 
   return (
@@ -28,12 +28,12 @@ export default function MobileBottomBar() {
                 onClick={(e) => { e.preventDefault(); trackWhatsAppClick('mobile'); window.open(item.href, '_blank') }}
                 className="flex flex-col items-center gap-0.5 text-xs font-semibold text-muted-soft px-3 py-1.5 rounded-xl transition-colors hover:text-[#25D366]"
               >
-                <span className="flex" style={{ color: '#25D366' }}>{item.icon}</span>
+                <item.icon className="text-[22px]" style={{ color: '#25D366' }} />
                 <span>{item.label}</span>
               </a>
             ) : (
               <Link to={item.to} className="flex flex-col items-center gap-0.5 text-xs font-semibold text-muted-soft px-3 py-1.5 rounded-xl transition-colors hover:text-gold">
-                <span className="flex">{item.icon}</span>
+                <item.icon className="text-[22px] text-gold" />
                 <span>{item.label}</span>
               </Link>
             )}
