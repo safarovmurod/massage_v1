@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import ScrollReveal from './ScrollReveal'
-import { BloodFlowIcon, SkinIcon, TensionIcon, TissueIcon, RecoveryIcon, SkinHealthIcon } from './icons/Icons.jsx'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import ScrollReveal from '../common/ScrollReveal'
+import { BloodFlowIcon, SkinIcon, TensionIcon, TissueIcon, RecoveryIcon, SkinHealthIcon } from '../icons/Icons.jsx'
 
 export default function Benefits() {
   const { t } = useLang()

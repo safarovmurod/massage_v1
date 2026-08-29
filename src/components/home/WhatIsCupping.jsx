@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import ScrollReveal from './ScrollReveal'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import ScrollReveal from '../common/ScrollReveal'
 
 export default function WhatIsCupping() {
   const { t } = useLang()

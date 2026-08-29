@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import { LogoIcon, WhatsAppIcon, InstagramIcon, TelegramIcon, ViberIcon, MapPinIcon } from './icons/Icons.jsx'
-import { getWhatsAppLink } from './Header'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import { LogoIcon, WhatsAppIcon, InstagramIcon, TelegramIcon, ViberIcon, MapPinIcon } from '../icons/Icons.jsx'
+import { getWhatsAppLink } from './Header.jsx'
 
 export default function Footer() {
   const { lang, t } = useLang()

@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import { useTheme } from '../contexts/ThemeContext.jsx'
-import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon } from './icons/Icons.jsx'
-import { trackWhatsAppClick, trackLanguageChange } from '../lib/analytics.js'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import { useTheme } from '../../contexts/ThemeContext.jsx'
+import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon } from '../icons/Icons.jsx'
+import { trackWhatsAppClick, trackLanguageChange } from '../../lib/analytics.js'
 
 const WA_NUMBER = '992007336264'
 

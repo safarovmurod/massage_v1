@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import ScrollReveal from './ScrollReveal'
-import { CheckIcon } from './icons/Icons.jsx'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import ScrollReveal from '../common/ScrollReveal'
+import { CheckIcon } from '../icons/Icons.jsx'
 
 export default function Effects() {
   const { t } = useLang()

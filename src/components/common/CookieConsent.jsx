@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
+import { useLang } from '../../contexts/LanguageContext.jsx'
 
 export default function CookieConsent() {
   const { t } = useLang()

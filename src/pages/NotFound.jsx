@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useLang } from '../contexts/LanguageContext.jsx'
 import { WhatsAppIcon } from '../components/icons/Icons.jsx'
-import { getWhatsAppLink } from '../components/Header.jsx'
+import { getWhatsAppLink } from '../components/layout/Header.jsx'
 import { trackWhatsAppClick } from '../lib/analytics.js'
 
 export default function NotFound() {
@@ -31,6 +31,15 @@ export default function NotFound() {
               </a>
             </motion.div>
           </div>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.5 }}
+            className="glass-card !p-6 mt-9 max-w-[500px] mx-auto"
+          >
+            <h2 className="text-lg font-semibold mb-2 gradient-text">{t('404.construction.title')}</h2>
+            <p className="text-sm text-secondary-soft">{t('404.construction.desc')}</p>
+          </motion.div>
         </motion.div>
       </div>
     </section>

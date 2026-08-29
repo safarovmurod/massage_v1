@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import { WhatsAppIcon } from './icons/Icons.jsx'
-import { getWhatsAppLink } from './Header'
-import { trackWhatsAppClick } from '../lib/analytics.js'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import { WhatsAppIcon } from '../icons/Icons.jsx'
+import { getWhatsAppLink } from './Header.jsx'
+import { trackWhatsAppClick } from '../../lib/analytics.js'
 
 export default function MobileBottomBar() {
   const { lang, t } = useLang()

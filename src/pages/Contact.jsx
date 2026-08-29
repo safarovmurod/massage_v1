@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { TextField, MenuItem, Button as MuiButton, Box, Typography } from '@mui/material'
 import { WhatsAppIcon, InstagramIcon, MapPinIcon, ClockIcon } from '../components/icons/Icons.jsx'
-import { getWhatsAppLink } from '../components/Header.jsx'
+import { getWhatsAppLink } from '../components/layout/Header.jsx'
 import { trackWhatsAppClick, trackInstagramClick, trackFormSubmit } from '../lib/analytics.js'
 
 export default function Contact() {

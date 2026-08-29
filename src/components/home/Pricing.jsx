@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
-import { useLang } from '../contexts/LanguageContext.jsx'
-import ScrollReveal from './ScrollReveal'
-import { WhatsAppIcon, CheckIcon } from './icons/Icons.jsx'
-import { getWhatsAppLink } from './Header'
-import { trackWhatsAppClick } from '../lib/analytics.js'
+import { useLang } from '../../contexts/LanguageContext.jsx'
+import ScrollReveal from '../common/ScrollReveal'
+import { WhatsAppIcon, CheckIcon } from '../icons/Icons.jsx'
+import { getWhatsAppLink } from '../layout/Header.jsx'
+import { trackWhatsAppClick } from '../../lib/analytics.js'
 
 export default function Pricing() {
   const { lang, t } = useLang()
