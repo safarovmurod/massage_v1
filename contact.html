@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="Контакты баночного массажа — адрес Зарафшон 22/1, WhatsApp +992007336264, Instagram @safarovvv.i8. Запишитесь на процедуру.">
+  <meta name="keywords" content="контакты, баночный массаж, адрес, Зарафшон, WhatsApp, запись">
+  <meta name="robots" content="index, follow">
+
+  <meta property="og:title" content="Контакты — Баночный массаж">
+  <meta property="og:description" content="Адрес: Зарафшон 22/1. WhatsApp: +992007336264. Запись на баночный массаж.">
+  <meta property="og:type" content="website">
+
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+
+  <title>Контакты — Баночный массаж</title>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <div class="logo-icon"></div>
+        <span class="logo-text">Баночный массаж</span>
+      </a>
+      <nav class="nav">
+        <a href="index.html" data-i18n="nav.home">Главная</a>
+        <a href="index.html#benefits" data-i18n="nav.benefits">Преимущества</a>
+        <a href="index.html#process" data-i18n="nav.process">Как проходит массаж</a>
+        <a href="index.html#pricing" data-i18n="nav.prices">Цены</a>
+        <a href="contact.html" data-i18n="nav.contacts">Контакты</a>
+      </nav>
+      <div class="lang-selector">
+        <button class="lang-btn" data-lang="ru">RU</button>
+        <button class="lang-btn" data-lang="tj">TJ</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+      </div>
+      <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">☀</button>
+      <a href="#" class="btn btn-primary btn-sm" data-wa="general" data-i18n="header.whatsapp">Написать в WhatsApp</a>
+      <button class="burger" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MOBILE MENU -->
+  <div class="mobile-menu-overlay"></div>
+  <div class="mobile-menu">
+    <nav>
+      <a href="index.html" data-i18n="nav.home">Главная</a>
+      <a href="index.html#benefits" data-i18n="nav.benefits">Преимущества</a>
+      <a href="index.html#process" data-i18n="nav.process">Как проходит массаж</a>
+      <a href="index.html#pricing" data-i18n="nav.prices">Цены</a>
+      <a href="contact.html" data-i18n="nav.contacts">Контакты</a>
+    </nav>
+    <div class="lang-selector">
+      <button class="lang-btn" data-lang="ru">RU</button>
+      <button class="lang-btn" data-lang="tj">TJ</button>
+      <button class="lang-btn" data-lang="en">EN</button>
+    </div>
+    <a href="#" class="btn btn-primary btn-block" data-wa="general" data-i18n="header.whatsapp">Написать в WhatsApp</a>
+  </div>
+
+  <!-- CONTACT PAGE -->
+  <section class="contact-hero">
+    <div class="container">
+      <div class="section-title fade-in">
+        <h2 data-i18n="contact.title">Где мы находимся</h2>
+        <p data-i18n="contact.subtitle">Свяжитесь с нами удобным способом</p>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding-top:0">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- LEFT: Info + Map + Hours -->
+        <div>
+          <!-- Contact Info -->
+          <div class="glass-card contact-info-card fade-in">
+            <div class="contact-info-item">
+              <div class="icon">📍</div>
+              <div>
+                <div class="label" data-i18n="contact.address.label">Адрес</div>
+                <div class="value" data-i18n="contact.address.value">Зарафшон 22/1</div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="icon">💬</div>
+              <div>
+                <div class="label" data-i18n="contact.whatsapp.label">WhatsApp</div>
+                <div class="value"><a href="#" data-wa="general">+992 007 336 264</a></div>
+              </div>
+            </div>
+            <div class="contact-info-item">
+              <div class="icon">📷</div>
+              <div>
+                <div class="label" data-i18n="contact.instagram.label">Instagram</div>
+                <div class="value"><a href="https://www.instagram.com/safarovvv.i8/" target="_blank" rel="noopener">@safarovvv.i8</a></div>
+              </div>
+            </div>
+            <a href="#" class="btn btn-primary btn-block" data-wa="general" data-i18n="contact.btn.whatsapp">Написать в WhatsApp</a>
+            <a href="https://www.instagram.com/safarovvv.i8/" target="_blank" rel="noopener" class="btn btn-secondary btn-block" style="margin-top:12px" data-i18n="contact.btn.instagram">Открыть Instagram</a>
+          </div>
+
+          <!-- Map -->
+          <div class="map-container fade-in fade-in-delay-1">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2000!2d68.7864!3d38.5357!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzjCsDMxJzI4LjUiTiA2OMKwNDcnMTUuMCJF!5e0!3m2!1sru!2s!4v1700000000000"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Карта — Зарафшон 22/1">
+            </iframe>
+          </div>
+          <a href="https://maps.app.goo.gl/Z6nT8PEVyGF8H6a26?g_st=atm" target="_blank" rel="noopener" class="btn btn-outline btn-block" data-i18n="contact.btn.route">Построить маршрут</a>
+
+          <!-- Hours -->
+          <div class="glass-card fade-in fade-in-delay-2" style="margin-top:24px">
+            <h3 style="margin-bottom:16px" data-i18n="contact.hours.label">Часы работы</h3>
+            <ul class="hours-list">
+              <li><span class="day" data-i18n="contact.hours.weekdays">Пн – Пт: 9:00 – 19:00</span><span class="time">9:00 – 19:00</span></li>
+              <li><span class="day" data-i18n="contact.hours.saturday">Суббота</span><span class="time">10:00 – 16:00</span></li>
+              <li><span class="day" data-i18n="contact.hours.sunday">Воскресенье</span><span class="time" style="color:var(--accent-orange)">выходной</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- RIGHT: Contact Form -->
+        <div>
+          <div class="glass-card form-card fade-in fade-in-delay-1">
+            <div id="formContainer">
+              <h3 style="margin-bottom:8px" data-i18n="contact.form.title">Форма обратной связи</h3>
+              <p style="margin-bottom:24px;font-size:0.9rem" data-i18n="contact.form.subtitle">Заполните форму — мы свяжемся с вами в WhatsApp</p>
+              <form id="contactForm">
+                <div class="form-group">
+                  <label for="name"><span data-i18n="contact.form.name">Имя</span> <span class="required">*</span></label>
+                  <input type="text" id="name" class="form-control" required data-i18n-placeholder="contact.form.name">
+                </div>
+                <div class="form-group">
+                  <label for="phone"><span data-i18n="contact.form.phone">Номер телефона</span> <span class="required">*</span></label>
+                  <input type="tel" id="phone" class="form-control" required placeholder="+992 ..." data-i18n-placeholder="contact.form.phone">
+                </div>
+                <div class="form-group">
+                  <label for="time"><span data-i18n="contact.form.time">Удобное время</span></label>
+                  <input type="text" id="time" class="form-control" data-i18n-placeholder="contact.form.time">
+                </div>
+                <div class="form-group">
+                  <label for="forWhom"><span data-i18n="contact.form.forWhom">Кому нужна процедура?</span> <span class="required">*</span></label>
+                  <select id="forWhom" class="form-control" required>
+                    <option value="">Кому нужна процедура?</option>
+                    <option value="woman">Женщине</option>
+                    <option value="child">Ребёнку</option>
+                  </select>
+                  <div class="form-note" id="childNote" data-i18n="contact.form.childNote">Для записи ребёнка необходима предварительная связь с родителем или законным представителем.</div>
+                </div>
+                <div class="form-group">
+                  <label for="comment"><span data-i18n="contact.form.comment">Комментарий</span></label>
+                  <textarea id="comment" class="form-control" data-i18n-placeholder="contact.form.comment"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary btn-block btn-lg" data-i18n="contact.form.submit">Отправить заявку</button>
+              </form>
+            </div>
+            <div class="form-success" id="formSuccess">
+              <div class="icon">✓</div>
+              <h3 data-i18n="contact.form.success.title">Заявка отправлена!</h3>
+              <p data-i18n="contact.form.success">Спасибо! Ваша заявка отправлена. Мы свяжемся с вами в ближайшее время.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon"></div>
+            <span class="logo-text">Баночный массаж</span>
+          </div>
+          <p data-i18n="footer.about">Профессиональный баночный массаж для здоровья, лёгкости и восстановления. Услуги только для женщин и детей.</p>
+          <p class="note" data-i18n="footer.note">Услуги предоставляются только женщинам и детям</p>
+          <div class="footer-social">
+            <a href="#" data-wa="general" aria-label="WhatsApp">💬</a>
+            <a href="https://www.instagram.com/safarovvv.i8/" target="_blank" rel="noopener" aria-label="Instagram">📷</a>
+            <a href="#" aria-label="Telegram">✈</a>
+            <a href="#" aria-label="Viber">📞</a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer.links.title">Быстрые ссылки</h4>
+          <ul>
+            <li><a href="index.html" data-i18n="nav.home">Главная</a></li>
+            <li><a href="index.html#benefits" data-i18n="nav.benefits">Преимущества</a></li>
+            <li><a href="index.html#process" data-i18n="nav.process">Как проходит массаж</a></li>
+            <li><a href="index.html#pricing" data-i18n="nav.prices">Цены</a></li>
+            <li><a href="contact.html" data-i18n="nav.contacts">Контакты</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="footer.contacts.title">Контакты</h4>
+          <div class="footer-contact-item">📍 <span>Зарафшон 22/1</span></div>
+          <div class="footer-contact-item">💬 <a href="#" data-wa="general">+992 007 336 264</a></div>
+          <div class="footer-contact-item">📷 <a href="https://www.instagram.com/safarovvv.i8/" target="_blank" rel="noopener">@safarovvv.i8</a></div>
+        </div>
+        <div class="footer-col">
+          <h4 data-i18n="contact.hours.label">Часы работы</h4>
+          <div class="footer-contact-item" data-i18n="contact.hours.weekdays">Пн – Пт: 9:00 – 19:00</div>
+          <div class="footer-contact-item" data-i18n="contact.hours.saturday">Суббота: 10:00 – 16:00</div>
+          <div class="footer-contact-item" data-i18n="contact.hours.sunday">Воскресенье: выходной</div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span data-i18n="footer.copyright">© 2026 Баночный массаж. Все права защищены.</span>
+        <a href="#" data-i18n="footer.privacy">Политика конфиденциальности</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLOATING WHATSAPP -->
+  <a href="#" class="whatsapp-float" data-wa="general" aria-label="WhatsApp">💬</a>
+
+  <!-- MOBILE BOTTOM BAR -->
+  <div class="mobile-bottom-bar">
+    <div class="mobile-bottom-bar-inner">
+      <a href="index.html"><span class="icon">🏠</span><span data-i18n="mobile.home">Главная</span></a>
+      <a href="index.html#pricing"><span class="icon">💆</span><span data-i18n="mobile.services">Услуги</span></a>
+      <a href="#" class="whatsapp-btn" data-wa="general"><span class="icon">💬</span><span data-i18n="mobile.whatsapp">Написать</span></a>
+      <a href="contact.html"><span class="icon">📍</span><span data-i18n="mobile.contacts">Контакты</span></a>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

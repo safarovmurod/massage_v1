@@ -1,0 +1,77 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" fill="none"
+  xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="60" x2="960" y2="990">
+      <stop stop-color="#29222F"/>
+      <stop offset="0.52" stop-color="#321C2B"/>
+      <stop offset="1" stop-color="#141821"/>
+    </linearGradient>
+
+    <linearGradient id="glass" x1="290" y1="250" x2="570" y2="780">
+      <stop stop-color="#FFF8E8" stop-opacity=".82"/>
+      <stop offset=".22" stop-color="#EADCCB" stop-opacity=".32"/>
+      <stop offset=".58" stop-color="#9B7B85" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#FFF6DD" stop-opacity=".52"/>
+    </linearGradient>
+
+    <linearGradient id="glass2" x1="560" y1="370" x2="900" y2="700">
+      <stop stop-color="#FFF7E8" stop-opacity=".68"/>
+      <stop offset=".4" stop-color="#D7BDC1" stop-opacity=".2"/>
+      <stop offset="1" stop-color="#FFF1D8" stop-opacity=".55"/>
+    </linearGradient>
+
+    <linearGradient id="gold" x1="260" y1="760" x2="600" y2="830">
+      <stop stop-color="#B98336"/>
+      <stop offset=".45" stop-color="#FFE19A"/>
+      <stop offset="1" stop-color="#B8782A"/>
+    </linearGradient>
+
+    <filter id="shadow" x="0" y="0" width="1024" height="1024">
+      <feDropShadow dx="0" dy="30" stdDeviation="26" flood-color="#050509" flood-opacity=".65"/>
+    </filter>
+
+    <filter id="glow" x="0" y="0" width="1024" height="1024">
+      <feGaussianBlur stdDeviation="18"/>
+    </filter>
+  </defs>
+
+  <!-- Rounded background / border radius -->
+  <rect x="28" y="28" width="968" height="968" rx="150" fill="url(#bg)"/>
+  <rect x="30" y="30" width="964" height="964" rx="148" stroke="#D9A950" stroke-opacity=".48" stroke-width="4"/>
+
+  <!-- Soft warm light -->
+  <ellipse cx="468" cy="736" rx="340" ry="95" fill="#E6A74E" fill-opacity=".18" filter="url(#glow)"/>
+
+  <g filter="url(#shadow)">
+    <!-- Lying transparent silicone massage cup -->
+    <g transform="rotate(-23 710 590)">
+      <path d="M574 452C620 387 754 367 832 427C910 487 909 650 840 716C771 782 637 745 586 670C537 598 528 518 574 452Z"
+        fill="url(#glass2)" stroke="#FDEBCB" stroke-opacity=".72" stroke-width="10"/>
+      <ellipse cx="783" cy="573" rx="112" ry="151"
+        fill="#211B27" fill-opacity=".4" stroke="#F9E5C7" stroke-width="16"/>
+      <ellipse cx="783" cy="573" rx="91" ry="128"
+        stroke="#FFFFFF" stroke-opacity=".33" stroke-width="8"/>
+      <path d="M592 474C645 423 727 417 762 438"
+        stroke="#FFF9EC" stroke-opacity=".66" stroke-width="14" stroke-linecap="round"/>
+    </g>
+
+    <!-- Upright silicone massage cup -->
+    <path d="M274 376C274 330 306 299 350 299H432C476 299 508 330 508 376V427C508 447 525 470 538 498C565 554 580 635 579 710C578 778 535 820 469 820H311C245 820 204 778 203 710C202 635 217 554 244 498C257 470 274 447 274 427V376Z"
+      fill="url(#glass)" stroke="#FDEBCB" stroke-opacity=".8" stroke-width="11"/>
+
+    <!-- Top of upright cup -->
+    <rect x="340" y="246" width="102" height="83" rx="24"
+      fill="url(#glass)" stroke="#FDEBCB" stroke-opacity=".8" stroke-width="10"/>
+
+    <!-- Silicone rim -->
+    <ellipse cx="391" cy="792" rx="197" ry="47" fill="url(#gold)" stroke="#FFF0C8" stroke-width="8"/>
+    <ellipse cx="391" cy="780" rx="166" ry="27" fill="#4A3441" fill-opacity=".45"
+      stroke="#FFF4D9" stroke-opacity=".52" stroke-width="6"/>
+
+    <!-- Glass highlights -->
+    <path d="M308 397C291 511 278 630 292 704"
+      stroke="#FFFDF4" stroke-opacity=".65" stroke-width="22" stroke-linecap="round"/>
+    <path d="M468 413C498 506 506 645 479 716"
+      stroke="#F9E9CF" stroke-opacity=".35" stroke-width="14" stroke-linecap="round"/>
+  </g>
+</svg>
