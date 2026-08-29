@@ -3,7 +3,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useLang } from '../../contexts/LanguageContext.jsx'
 import { useTheme } from '../../contexts/ThemeContext.jsx'
-import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon } from '../icons/Icons.jsx'
+import { LogoIcon, SunIcon, MoonIcon, MenuIcon, CloseIcon, WhatsAppIcon, HomeIcon, BloodFlowIcon, ListIcon, PriceIcon, MapPinIcon, LoginIcon, UserPlusIcon } from '../icons/Icons.jsx'
 import { trackWhatsAppClick, trackLanguageChange } from '../../lib/analytics.js'
 
 const WA_NUMBER = '992007336264'
@@ -39,11 +39,11 @@ export default function Header() {
   }
   const langs = ['ru', 'tj', 'en']
   const navLinks = [
-    { to: '/', label: t('nav.home') },
-    { to: '/#benefits', label: t('nav.benefits') },
-    { to: '/#process', label: t('nav.process') },
-    { to: '/#pricing', label: t('nav.prices') },
-    { to: '/contact', label: t('nav.contacts') },
+    { to: '/', label: t('nav.home'), icon: HomeIcon },
+    { to: '/#benefits', label: t('nav.benefits'), icon: BloodFlowIcon },
+    { to: '/#process', label: t('nav.process'), icon: ListIcon },
+    { to: '/#pricing', label: t('nav.prices'), icon: PriceIcon },
+    { to: '/contact', label: t('nav.contacts'), icon: MapPinIcon },
   ]
 
   return (
@@ -106,31 +106,46 @@ export default function Header() {
             <motion.div className="fixed top-0 right-0 w-full max-w-[340px] h-screen z-[999] flex flex-col px-5 pt-[70px] pb-5 overflow-y-auto md:hidden"
               style={{ background: 'var(--bg-secondary)', boxShadow: '-8px 0 32px rgba(0,0,0,0.3)' }}
               initial={{ x: '100%' }} animate={{ x: 0 }} exit={{ x: '100%' }}
-              transition={{ type: 'tween', duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+              transition={{ type: 'tween', duration: 0.35, ease: [0.32, 0.72, 0, 1] }}
             >
               <nav className="flex flex-col gap-1.5 mb-5">
                 {navLinks.map((link, i) => (
                   <motion.div key={link.to}
-                    initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 + i * 0.05 }}
+                    initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.08 + i * 0.06, type: 'spring', stiffness: 300, damping: 24 }}
                   >
-                    <Link to={link.to} className="block px-4 py-3 text-base font-semibold rounded-2xl bg-glass text-primary-soft hover:bg-glass-hover transition-all">{link.label}</Link>
+                    <Link to={link.to} className="flex items-center gap-3 px-4 py-3 text-base font-semibold rounded-2xl bg-glass text-primary-soft hover:bg-glass-hover transition-all">
+                      <span className="flex items-center justify-center w-8 h-8 rounded-xl bg-glass-hover text-gold shrink-0"><link.icon width={20} height={20} /></span>
+                      {link.label}
+                    </Link>
                   </motion.div>
                 ))}
               </nav>
-              <div className="flex justify-center gap-1 mb-4">
+              <motion.div className="flex justify-center gap-1 mb-4"
+                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
+              >
                 {langs.map(l => (
                   <button key={l} className={`px-2.5 py-1.5 rounded-xl text-xs font-semibold transition-all border border-glass-soft
                     ${lang === l ? 'bg-gradient-gold text-white border-transparent' : 'bg-glass text-muted-soft hover:text-primary-soft'}`}
                     onClick={() => handleLangChange(l)}>{l.toUpperCase()}</button>
                 ))}
-              </div>
-              <div className="flex flex-col gap-2 mb-4">
-                <Link to="/login" className="btn btn-secondary btn-block">{t('nav.login')}</Link>
-                <Link to="/register" className="btn btn-secondary btn-block">{t('nav.register')}</Link>
-              </div>
-              <a href="#" className="btn btn-primary btn-block" onClick={(e) => handleWA(e, 'general')}>
+              </motion.div>
+              <motion.div className="flex flex-col gap-2 mb-4"
+                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.45 }}
+              >
+                <Link to="/login" className="btn btn-secondary btn-block flex items-center justify-center gap-2">
+                  <LoginIcon width={20} height={20} /> {t('nav.login')}
+                </Link>
+                <Link to="/register" className="btn btn-secondary btn-block flex items-center justify-center gap-2">
+                  <UserPlusIcon width={20} height={20} /> {t('nav.register')}
+                </Link>
+              </motion.div>
+              <motion.a href="#" className="btn btn-primary btn-block flex items-center justify-center gap-2"
+                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}
+                onClick={(e) => handleWA(e, 'general')}
+              >
                 <WhatsAppIcon size={18} /> {t('header.whatsapp')}
-              </a>
+              </motion.a>
             </motion.div>
           </>
         )}

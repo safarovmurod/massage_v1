@@ -190,6 +190,49 @@ export const LogoutIcon = (p) => (
   </svg>
 )
 
+export const HomeIcon = (p) => (
+  <svg {...base(p)}>
+    <path d="M3 12l9-9 9 9" />
+    <path d="M5 10v10a1 1 0 001 1h12a1 1 0 001-1V10" />
+    <path d="M9 21v-6h6v6" />
+  </svg>
+)
+
+export const PriceIcon = (p) => (
+  <svg {...base(p)}>
+    <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z" />
+    <line x1="7" y1="7" x2="7.01" y2="7" />
+  </svg>
+)
+
+export const ListIcon = (p) => (
+  <svg {...base(p)}>
+    <line x1="8" y1="6" x2="21" y2="6" />
+    <line x1="8" y1="12" x2="21" y2="12" />
+    <line x1="8" y1="18" x2="21" y2="18" />
+    <line x1="3" y1="6" x2="3.01" y2="6" />
+    <line x1="3" y1="12" x2="3.01" y2="12" />
+    <line x1="3" y1="18" x2="3.01" y2="18" />
+  </svg>
+)
+
+export const LoginIcon = (p) => (
+  <svg {...base(p)}>
+    <path d="M15 3h4a2 2 0 012 2v14a2 2 0 01-2 2h-4" />
+    <polyline points="10 17 15 12 10 7" />
+    <line x1="15" y1="12" x2="3" y2="12" />
+  </svg>
+)
+
+export const UserPlusIcon = (p) => (
+  <svg {...base(p)}>
+    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+    <circle cx="8.5" cy="7" r="4" />
+    <line x1="20" y1="8" x2="20" y2="14" />
+    <line x1="23" y1="11" x2="17" y2="11" />
+  </svg>
+)
+
 export const LogoIcon = (p) => (
   <svg width={p.size || 40} height={p.size || 40} viewBox="0 0 64 64" {...p}>
     <defs>

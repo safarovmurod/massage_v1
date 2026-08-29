@@ -49,9 +49,9 @@ export default function Register() {
         className="rounded-[28px] p-10 max-w-[440px] w-full backdrop-blur-xl border border-glass-soft shadow-card"
         style={{ background: 'var(--bg-card)' }}
       >
-        <div className="text-center mb-6"><LogoIcon size={48} /></div>
+        <div className="text-center mb-6"><LogoIcon size={56} /></div>
         <h1 className="text-3xl font-bold text-center mb-2 gradient-text">{t('auth.register')}</h1>
-        <p className="text-sm text-muted-soft text-center mb-7">{t('auth.register')}</p>
+        <p className="text-sm text-muted-soft text-center mb-7">{t('auth.register.subtitle')}</p>
         {!isSupabaseConfigured() && <Alert severity="error" sx={{ mb: 2 }}>Supabase не настроен. Добавьте VITE_SUPABASE_URL и VITE_SUPABASE_ANON_KEY в .env</Alert>}
         <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
           <TextField label={t('auth.name')} required value={fullName} onChange={e => setFullName(e.target.value)} sx={inputSx} />

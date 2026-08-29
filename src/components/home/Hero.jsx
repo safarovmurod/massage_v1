@@ -49,19 +49,19 @@ export default function Hero() {
             {titleMain} <span className="gradient-text-animated">{titleAccent}</span>
           </motion.h1>
           <motion.p variants={item} className="text-lg mb-5 max-w-[560px] text-secondary-soft">{t('hero.subtitle')}</motion.p>
-          <motion.div variants={item} className="inline-flex items-center gap-2 px-4 py-2 bg-glass border border-gold-soft rounded-full text-sm font-semibold text-gold mb-7 backdrop-blur-md">
+          <motion.div variants={item} className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-glass border border-gold-soft rounded-full text-xs font-semibold text-gold mb-5 backdrop-blur-md">
             <span>♀</span><span>{t('hero.badge')}</span>
           </motion.div>
 
-          <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-4 my-7 max-w-[680px]">
-            <motion.div whileHover={{ scale: 1.03, y: -4 }} className="glass-card !p-5">
-              <h3 className="text-lg font-semibold mb-1.5">{t('hero.card1.title')}</h3>
-              <div className="gradient-text text-3xl font-bold mb-2">{t('hero.card1.price')}</div>
-              <p className="text-sm">{t('hero.card1.desc')}</p>
+          <motion.div variants={item} className="grid grid-cols-1 sm:grid-cols-2 gap-3 my-5 max-w-[680px]">
+            <motion.div whileHover={{ scale: 1.03, y: -4 }} className="glass-card !p-4">
+              <h3 className="text-base font-semibold mb-1">{t('hero.card1.title')}</h3>
+              <div className="gradient-text text-2xl font-bold mb-1.5">{t('hero.card1.price')}</div>
+              <p className="text-xs">{t('hero.card1.desc')}</p>
             </motion.div>
-            <motion.div whileHover={{ scale: 1.03, y: -4 }} className="glass-card !p-5">
-              <h3 className="text-lg font-semibold mb-1.5">{t('hero.card2.title')}</h3>
-              <p className="text-sm">{t('hero.card2.desc')}</p>
+            <motion.div whileHover={{ scale: 1.03, y: -4 }} className="glass-card !p-4">
+              <h3 className="text-base font-semibold mb-1">{t('hero.card2.title')}</h3>
+              <p className="text-xs">{t('hero.card2.desc')}</p>
             </motion.div>
           </motion.div>
 
