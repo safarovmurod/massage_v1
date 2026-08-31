@@ -1,9 +1,12 @@
--- ============================================
--- Cupping Massage — Supabase Schema
--- Run this in Supabase SQL Editor
--- ============================================
+-- ============================================================
+-- Cupping Massage — Supabase Schema (v2, безопасно перезапускать)
+-- Вставить целиком в Supabase → SQL Editor → Run
+-- ============================================================
 
--- === PROFILES ===
+-- ============================================================
+-- 1. ТАБЛИЦЫ
+-- ============================================================
+
 CREATE TABLE IF NOT EXISTS profiles (
   id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   email TEXT NOT NULL,
@@ -13,7 +16,6 @@ CREATE TABLE IF NOT EXISTS profiles (
   last_login TIMESTAMPTZ
 );
 
--- === LEADS ===
 CREATE TABLE IF NOT EXISTS leads (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -25,21 +27,18 @@ CREATE TABLE IF NOT EXISTS leads (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- === SITE CONTENT (editable texts) ===
 CREATE TABLE IF NOT EXISTS site_content (
   key TEXT PRIMARY KEY,
   value TEXT,
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- === SITE SETTINGS (contacts, WhatsApp, etc) ===
 CREATE TABLE IF NOT EXISTS site_settings (
   key TEXT PRIMARY KEY,
   value TEXT,
   updated_at TIMESTAMPTZ DEFAULT now()
 );
 
--- === SERVICES ===
 CREATE TABLE IF NOT EXISTS services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -49,7 +48,6 @@ CREATE TABLE IF NOT EXISTS services (
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
--- === ANALYTICS EVENTS ===
 CREATE TABLE IF NOT EXISTS analytics_events (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   event_type TEXT NOT NULL,
@@ -59,136 +57,236 @@ CREATE TABLE IF NOT EXISTS analytics_events (
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- === ADMIN ACTIVITY LOG ===
 CREATE TABLE IF NOT EXISTS admin_activity (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID REFERENCES auth.users(id),
+  user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
   action TEXT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ============================================
--- ROW LEVEL SECURITY
--- ============================================
+-- Индексы под сортировки/фильтры в админке
+CREATE INDEX IF NOT EXISTS idx_leads_created_at     ON leads (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_leads_status         ON leads (status);
+CREATE INDEX IF NOT EXISTS idx_profiles_created_at  ON profiles (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_created_at ON analytics_events (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_analytics_type       ON analytics_events (event_type);
+CREATE INDEX IF NOT EXISTS idx_activity_created_at  ON admin_activity (created_at DESC);
 
--- Enable RLS on all tables
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
-ALTER TABLE site_content ENABLE ROW LEVEL SECURITY;
-ALTER TABLE site_settings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+-- ============================================================
+-- 2. ХЕЛПЕР is_admin()
+-- ВАЖНО: SECURITY DEFINER — иначе RLS-политика на profiles,
+-- которая сама читает profiles, даёт
+-- "infinite recursion detected in policy for relation profiles"
+-- и вход в админку полностью ломается.
+-- ============================================================
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN
+LANGUAGE sql
+SECURITY DEFINER
+STABLE
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+$$;
+
+GRANT EXECUTE ON FUNCTION public.is_admin() TO anon, authenticated;
+
+-- ============================================================
+-- 3. ROW LEVEL SECURITY
+-- ============================================================
+
+ALTER TABLE profiles         ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads            ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_content     ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_settings    ENABLE ROW LEVEL SECURITY;
+ALTER TABLE services         ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_events ENABLE ROW LEVEL SECURITY;
-ALTER TABLE admin_activity ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_activity   ENABLE ROW LEVEL SECURITY;
 
--- === PROFILES: users can see only their own profile ===
-CREATE POLICY "Users can read own profile" ON profiles
-  FOR SELECT USING (auth.uid() = id);
+-- --- Сносим старые политики, чтобы скрипт был идемпотентным ---
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN
+    SELECT schemaname, tablename, policyname
+    FROM pg_policies
+    WHERE schemaname = 'public'
+      AND tablename IN ('profiles','leads','site_content','site_settings',
+                        'services','analytics_events','admin_activity')
+  LOOP
+    EXECUTE format('DROP POLICY IF EXISTS %I ON %I.%I',
+                   r.policyname, r.schemaname, r.tablename);
+  END LOOP;
+END $$;
 
-CREATE POLICY "Users can update own profile" ON profiles
-  FOR UPDATE USING (auth.uid() = id);
+-- === PROFILES ===
+-- Своя запись ИЛИ админ видит всех (одна политика вместо двух конфликтующих)
+CREATE POLICY "profiles_select" ON profiles
+  FOR SELECT TO authenticated
+  USING (auth.uid() = id OR public.is_admin());
 
--- Admins can see all profiles
-CREATE POLICY "Admins can read all profiles" ON profiles
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "profiles_update_own" ON profiles
+  FOR UPDATE TO authenticated
+  USING (auth.uid() = id)
+  WITH CHECK (auth.uid() = id);
 
--- === LEADS: only admins ===
-CREATE POLICY "Admins can read leads" ON leads
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "profiles_update_admin" ON profiles
+  FOR UPDATE TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
-CREATE POLICY "Admins can update leads" ON leads
-  FOR UPDATE USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+-- Страховка, если триггер не сработал: юзер может создать свою запись
+CREATE POLICY "profiles_insert_self" ON profiles
+  FOR INSERT TO authenticated
+  WITH CHECK (auth.uid() = id);
 
--- Public can submit leads (insert only)
-CREATE POLICY "Anyone can submit leads" ON leads
-  FOR INSERT WITH CHECK (true);
+-- === LEADS ===
+-- Заявку с сайта отправляет анонимный посетитель
+CREATE POLICY "leads_insert_public" ON leads
+  FOR INSERT TO anon, authenticated
+  WITH CHECK (true);
 
--- === SITE CONTENT: only admins ===
-CREATE POLICY "Admins can read content" ON site_content
-  FOR SELECT USING (true);
+CREATE POLICY "leads_select_admin" ON leads
+  FOR SELECT TO authenticated
+  USING (public.is_admin());
 
-CREATE POLICY "Admins can write content" ON site_content
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "leads_update_admin" ON leads
+  FOR UPDATE TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
 
--- === SITE SETTINGS: only admins can write, public can read ===
-CREATE POLICY "Public can read settings" ON site_settings
-  FOR SELECT USING (true);
+CREATE POLICY "leads_delete_admin" ON leads
+  FOR DELETE TO authenticated
+  USING (public.is_admin());
 
-CREATE POLICY "Admins can write settings" ON site_settings
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+-- === SITE_CONTENT === (публичное чтение, запись — админ)
+CREATE POLICY "content_select_public" ON site_content
+  FOR SELECT TO anon, authenticated USING (true);
 
--- === SERVICES: public read, admin write ===
-CREATE POLICY "Public can read services" ON services
-  FOR SELECT USING (is_active = true);
+CREATE POLICY "content_insert_admin" ON site_content
+  FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
-CREATE POLICY "Admins can write services" ON services
-  FOR ALL USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "content_update_admin" ON site_content
+  FOR UPDATE TO authenticated
+  USING (public.is_admin()) WITH CHECK (public.is_admin());
 
--- === ANALYTICS: public can insert, admins can read ===
-CREATE POLICY "Anyone can insert analytics" ON analytics_events
-  FOR INSERT WITH CHECK (true);
+CREATE POLICY "content_delete_admin" ON site_content
+  FOR DELETE TO authenticated USING (public.is_admin());
 
-CREATE POLICY "Admins can read analytics" ON analytics_events
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+-- === SITE_SETTINGS ===
+CREATE POLICY "settings_select_public" ON site_settings
+  FOR SELECT TO anon, authenticated USING (true);
 
--- === ADMIN ACTIVITY: admins only ===
-CREATE POLICY "Admins can read activity" ON admin_activity
-  FOR SELECT USING (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "settings_insert_admin" ON site_settings
+  FOR INSERT TO authenticated WITH CHECK (public.is_admin());
 
-CREATE POLICY "Admins can insert activity" ON admin_activity
-  FOR INSERT WITH CHECK (
-    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'admin')
-  );
+CREATE POLICY "settings_update_admin" ON site_settings
+  FOR UPDATE TO authenticated
+  USING (public.is_admin()) WITH CHECK (public.is_admin());
 
--- ============================================
--- AUTO-CREATE PROFILE ON SIGNUP
--- ============================================
+CREATE POLICY "settings_delete_admin" ON site_settings
+  FOR DELETE TO authenticated USING (public.is_admin());
+
+-- === SERVICES === (публично только активные, админ видит все)
+CREATE POLICY "services_select" ON services
+  FOR SELECT TO anon, authenticated
+  USING (is_active = true OR public.is_admin());
+
+CREATE POLICY "services_insert_admin" ON services
+  FOR INSERT TO authenticated WITH CHECK (public.is_admin());
+
+CREATE POLICY "services_update_admin" ON services
+  FOR UPDATE TO authenticated
+  USING (public.is_admin()) WITH CHECK (public.is_admin());
+
+CREATE POLICY "services_delete_admin" ON services
+  FOR DELETE TO authenticated USING (public.is_admin());
+
+-- === ANALYTICS_EVENTS === (анонимный insert, чтение — админ)
+CREATE POLICY "analytics_insert_public" ON analytics_events
+  FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+CREATE POLICY "analytics_select_admin" ON analytics_events
+  FOR SELECT TO authenticated USING (public.is_admin());
+
+CREATE POLICY "analytics_delete_admin" ON analytics_events
+  FOR DELETE TO authenticated USING (public.is_admin());
+
+-- === ADMIN_ACTIVITY ===
+CREATE POLICY "activity_select_admin" ON admin_activity
+  FOR SELECT TO authenticated USING (public.is_admin());
+
+CREATE POLICY "activity_insert_admin" ON admin_activity
+  FOR INSERT TO authenticated
+  WITH CHECK (public.is_admin() AND user_id = auth.uid());
+
+-- ============================================================
+-- 4. АВТОСОЗДАНИЕ ПРОФИЛЯ ПРИ РЕГИСТРАЦИИ
+-- ============================================================
+
 CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER AS $$
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, full_name, role)
-  VALUES (new.id, new.email, new.raw_user_meta_data->>'full_name', 'user')
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.raw_user_meta_data->>'name'),
+    'user'
+  )
   ON CONFLICT (id) DO NOTHING;
-  RETURN new;
+  RETURN NEW;
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
 
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- ============================================
--- INITIAL CONTENT (optional seed data)
--- ============================================
+-- Добираем профили для пользователей, зарегистрированных до триггера
+INSERT INTO public.profiles (id, email, full_name, role)
+SELECT u.id, u.email, u.raw_user_meta_data->>'full_name', 'user'
+FROM auth.users u
+LEFT JOIN public.profiles p ON p.id = u.id
+WHERE p.id IS NULL;
+
+-- ============================================================
+-- 5. НАЧАЛЬНЫЕ ДАННЫЕ
+-- ============================================================
+
 INSERT INTO site_settings (key, value) VALUES
   ('whatsapp_number', '992007336264'),
-  ('instagram_url', 'https://www.instagram.com/safarovvv.i8/'),
-  ('address', 'Зарафшон 22/1'),
-  ('map_url', 'https://maps.app.goo.gl/Z6nT8PEVyGF8H6a26'),
-  ('working_hours_ru', 'Душ – Якшанбе: 9:00 – 19:00'),
-  ('working_hours_tj', 'Душ – Якшанбе: 9:00 – 19:00'),
-  ('working_hours_en', 'Mon – Sun: 9:00 – 19:00'),
-  ('wa_msg_ru', 'Здравствуйте! Я хочу узнать подробнее о баночном массаже и записаться на процедуру.'),
-  ('wa_msg_tj', 'Салом! Ман мехоҳам дар бораи массажи бонкагӣ маълумот гирам ва нависам.'),
-  ('wa_msg_en', 'Hello! I would like to know more about cupping massage and book an appointment.')
+  ('instagram_url',   'https://www.instagram.com/safarovvv.i8/'),
+  ('address',         'Зарафшон 22/1'),
+  ('map_url',         'https://maps.app.goo.gl/Z6nT8PEVyGF8H6a26'),
+  ('working_hours_ru','Душ – Якшанбе: 9:00 – 19:00'),
+  ('working_hours_tj','Душ – Якшанбе: 9:00 – 19:00'),
+  ('working_hours_en','Mon – Sun: 9:00 – 19:00'),
+  ('wa_msg_ru','Здравствуйте! Я хочу узнать подробнее о баночном массаже и записаться на процедуру.'),
+  ('wa_msg_tj','Салом! Ман мехоҳам дар бораи массажи бонкагӣ маълумот гирам ва нависам.'),
+  ('wa_msg_en','Hello! I would like to know more about cupping massage and book an appointment.')
 ON CONFLICT (key) DO NOTHING;
 
--- === HOW TO MAKE A USER ADMIN ===
--- Run this in SQL Editor to give admin role to a user:
--- UPDATE profiles SET role = 'admin' WHERE email = 'your-email@example.com';
+INSERT INTO site_content (key, value) VALUES
+  ('price_home_visit', '30'),
+  ('price_prepayment', '50')
+ON CONFLICT (key) DO NOTHING;
+
+-- ============================================================
+-- 6. ПОСЛЕ ЗАПУСКА: сделать себя админом
+-- Замени email на свой (тем, которым регистрировался на сайте):
+--
+--   UPDATE profiles SET role = 'admin' WHERE email = 'ТВОЙ_EMAIL';
+--
+-- Проверка:
+--   SELECT email, role FROM profiles;
+-- ============================================================
