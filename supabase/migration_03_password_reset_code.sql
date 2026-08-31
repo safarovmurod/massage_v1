@@ -167,7 +167,7 @@ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public
 AS $$
 DECLARE
   v_email TEXT := lower(trim(p_email));
-  v_code  TEXT := regexp_replace(coalesce(p_code, ''), '\D', '', 'g');
+  v_code  TEXT := regexp_replace(coalesce(p_code, ''), '[^0-9]', '', 'g');
   v_row   public.password_reset_requests;
 BEGIN
   IF length(coalesce(p_new_password, '')) < 6 THEN
