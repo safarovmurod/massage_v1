@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { TextField, Button as MuiButton, Box, Alert, CircularProgress } from '@mui/material'
+import { TextField, Button as MuiButton, Box, Alert, CircularProgress, MenuItem, Divider, Typography } from '@mui/material'
 import { useLang } from '../contexts/LanguageContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { LogoIcon } from '../components/icons/Icons.jsx'
@@ -30,6 +30,17 @@ export default function Register() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // Дополнительные поля профиля
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [phone, setPhone] = useState('')
+  const [birthDate, setBirthDate] = useState('')
+  const [gender, setGender] = useState('')
+  const [nationality, setNationality] = useState('')
+  const [region, setRegion] = useState('')
+  const [city, setCity] = useState('')
+  const [address, setAddress] = useState('')
+
   useEffect(() => { if (user) navigate('/admin') }, [user])
 
   const handleSubmit = async (e) => {
@@ -38,10 +49,23 @@ export default function Register() {
     if (password.length < 6) { setError(t('auth.password.min')); return }
     setLoading(true)
     try {
-      await signUp(email, password, fullName)
+      const composedName = fullName || [firstName, lastName].filter(Boolean).join(' ')
+      await signUp(email, password, composedName, {
+        first_name: firstName || null,
+        last_name: lastName || null,
+        phone: phone || null,
+        birth_date: birthDate || null,
+        gender: gender || null,
+        nationality: nationality || null,
+        region: region || null,
+        city: city || null,
+        address: address || null,
+      })
       trackAuthEvent('registration')
       setSuccess(t('auth.confirm'))
       setFullName(''); setEmail(''); setPassword('')
+      setFirstName(''); setLastName(''); setPhone(''); setBirthDate('')
+      setGender(''); setNationality(''); setRegion(''); setCity(''); setAddress('')
     } catch (err) {
       setError(translateAuthError(err, t))
     } finally {
@@ -55,7 +79,7 @@ export default function Register() {
         initial={{ opacity: 0, y: 30, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="rounded-[28px] p-10 max-w-[440px] w-full backdrop-blur-xl border border-glass-soft shadow-card"
+        className="rounded-[28px] p-10 max-w-[560px] w-full backdrop-blur-xl border border-glass-soft shadow-card my-8"
         style={{ background: 'var(--bg-card)' }}
       >
         <motion.div
@@ -107,6 +131,42 @@ export default function Register() {
                 <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
                   <TextField label={t('auth.password')} type="password" autoComplete="new-password" required value={password} onChange={e => setPassword(e.target.value)} sx={inputSx} />
                 </motion.div>
+
+                {/* ——— Дополнительная информация ——— */}
+                <Divider sx={{ borderColor: 'rgba(212,168,87,0.2)', my: 0.5 }}>
+                  <Typography sx={{ fontSize: '0.75rem', color: '#8a7f76', px: 1 }}>
+                    {t('auth.extra.title')}
+                  </Typography>
+                </Divider>
+
+                <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 2 }}>
+                  <TextField label={t('auth.firstName')} value={firstName}
+                    onChange={e => setFirstName(e.target.value)} sx={inputSx} size="small" />
+                  <TextField label={t('auth.lastName')} value={lastName}
+                    onChange={e => setLastName(e.target.value)} sx={inputSx} size="small" />
+                  <TextField label={t('auth.phone')} type="tel" placeholder="+992 __ ___ __ __"
+                    value={phone} onChange={e => setPhone(e.target.value)} sx={inputSx} size="small" />
+                  <TextField label={t('auth.birthDate')} type="date" value={birthDate}
+                    onChange={e => setBirthDate(e.target.value)} sx={inputSx} size="small"
+                    InputLabelProps={{ shrink: true }} />
+                  <TextField label={t('auth.gender')} select value={gender}
+                    onChange={e => setGender(e.target.value)} sx={inputSx} size="small">
+                    <MenuItem value="">{t('auth.notSpecified')}</MenuItem>
+                    <MenuItem value="female">{t('auth.gender.female')}</MenuItem>
+                    <MenuItem value="male">{t('auth.gender.male')}</MenuItem>
+                    <MenuItem value="other">{t('auth.gender.other')}</MenuItem>
+                  </TextField>
+                  <TextField label={t('auth.nationality')} value={nationality}
+                    onChange={e => setNationality(e.target.value)} sx={inputSx} size="small" />
+                  <TextField label={t('auth.region')} value={region}
+                    onChange={e => setRegion(e.target.value)} sx={inputSx} size="small" />
+                  <TextField label={t('auth.city')} value={city}
+                    onChange={e => setCity(e.target.value)} sx={inputSx} size="small" />
+                </Box>
+                <TextField label={t('auth.address')} value={address}
+                  onChange={e => setAddress(e.target.value)} sx={inputSx} size="small"
+                  multiline minRows={2} />
+
                 <AnimatePresence mode="wait">
                   {error && (
                     <motion.div key="err" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>

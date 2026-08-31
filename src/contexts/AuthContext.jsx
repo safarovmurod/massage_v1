@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.js'
+import { logUserActivity, bumpLoginCounter } from '../lib/userActivity.js'
 
 const AuthContext = createContext()
 
@@ -34,11 +35,6 @@ export function AuthProvider({ children }) {
           setUser(session?.user || null)
           if (session?.user) {
             await fetchProfile(session.user.id)
-            // Best-effort last_login update — never blocks auth flow
-            supabase.from('profiles')
-              .update({ last_login: new Date().toISOString() })
-              .eq('id', session.user.id)
-              .then(() => {})
           }
         }
       } catch {
@@ -65,28 +61,57 @@ export function AuthProvider({ children }) {
     return () => { mounted = false; listener?.subscription?.unsubscribe() }
   }, [fetchProfile])
 
-  const signUp = useCallback(async (email, password, fullName) => {
+  // extra — любые дополнительные поля профиля (phone, city, birth_date, ...)
+  const signUp = useCallback(async (email, password, fullName, extra = {}) => {
     const { data, error } = await supabase.auth.signUp({
       email, password,
-      options: { data: { full_name: fullName } }
+      options: {
+        data: {
+          full_name: fullName,
+          lang: localStorage.getItem('lang') || 'ru',
+          ...extra,
+        },
+      },
     })
     if (error) throw error
-    // Profile row is created automatically by the DB trigger (handle_new_user).
-    // No manual insert here — avoids duplicate-key conflicts with the trigger.
+    // Профиль создаётся триггером handle_new_user — ручной insert не нужен.
     return data
   }, [])
 
   const signIn = useCallback(async (email, password) => {
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error) throw error
+
+    // Блокировка аккаунта администратором
+    if (data?.user) {
+      const { data: prof } = await supabase
+        .from('profiles').select('is_active').eq('id', data.user.id).single()
+      if (prof && prof.is_active === false) {
+        await supabase.auth.signOut()
+        throw new Error('ACCOUNT_BLOCKED')
+      }
+      logUserActivity(data.user.id, 'login', { email })
+      bumpLoginCounter(data.user.id)
+    }
     return data
   }, [])
 
   const signOut = useCallback(async () => {
+    if (user?.id) await logUserActivity(user.id, 'logout')
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)
-  }, [])
+  }, [user])
+
+  const updateProfile = useCallback(async (fields) => {
+    if (!user?.id) throw new Error('Не авторизован')
+    const { error } = await supabase.from('profiles')
+      .update({ ...fields, updated_at: new Date().toISOString() })
+      .eq('id', user.id)
+    if (error) throw error
+    await logUserActivity(user.id, 'profile_update', { fields: Object.keys(fields) })
+    await fetchProfile(user.id)
+  }, [user, fetchProfile])
 
   const resetPassword = useCallback(async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -103,7 +128,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     user, profile, loading, passwordRecovery,
-    signUp, signIn, signOut, resetPassword, updatePassword,
+    signUp, signIn, signOut, resetPassword, updatePassword, updateProfile,
     refreshProfile: () => user && fetchProfile(user.id)
   }
 

@@ -4,6 +4,9 @@ export function translateAuthError(error, t) {
   const msg = (error.message || String(error)).toLowerCase()
   const code = (error.code || error.error_code || '').toLowerCase()
 
+  if (msg.includes('account_blocked')) {
+    return t('auth.error.blocked')
+  }
   if (code === 'invalid_credentials' || msg.includes('invalid login credentials')) {
     return t('auth.error.invalidCredentials')
   }
