@@ -9,7 +9,7 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
 DO $$
 DECLARE
   -- ⬇⬇⬇ ЗАМЕНИ ЭТИ ДВЕ СТРОКИ НА СВОИ ⬇⬇⬇
-  v_email    TEXT := 'admin@massage.tj';
+  v_email    TEXT := 'mansursafarov212@gmail.com';
   v_password TEXT := 'Admin123456';
   -- ⬆⬆⬆ ЗАМЕНИ ЭТИ ДВЕ СТРОКИ НА СВОИ ⬆⬆⬆
 
@@ -74,12 +74,13 @@ BEGIN
 END $$;
 
 -- ============================================================
--- ПРОВЕРКА
+-- ПРОВЕРКА: показывает ВСЕХ пользователей базы
 -- ============================================================
 SELECT
-  p.email,
-  p.role,
-  (u.email_confirmed_at IS NOT NULL) AS email_подтверждён
-FROM public.profiles p
-JOIN auth.users u ON u.id = p.id
-WHERE p.role = 'admin';
+  u.email                              AS email_для_входа,
+  COALESCE(p.role, '— нет профиля —')   AS роль,
+  (u.email_confirmed_at IS NOT NULL)    AS email_подтверждён,
+  u.created_at                          AS создан
+FROM auth.users u
+LEFT JOIN public.profiles p ON p.id = u.id
+ORDER BY u.created_at DESC;
