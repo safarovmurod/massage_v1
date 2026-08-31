@@ -6,6 +6,7 @@ import { useLang } from '../contexts/LanguageContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { supabase } from '../lib/supabase.js'
 import { LogoIcon } from '../components/icons/Icons.jsx'
+import PasswordField from '../components/common/PasswordField.jsx'
 import { translateAuthError } from '../lib/authErrors.js'
 
 const inputSx = {
@@ -90,10 +91,18 @@ export default function ResetPassword() {
               <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                 <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
                   <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.25 }}>
-                    <TextField label={t('auth.password.new')} type="password" autoComplete="new-password" required value={password} onChange={e => setPassword(e.target.value)} sx={inputSx} />
+                    <PasswordField
+                      label={t('auth.password.new')} autoComplete="new-password" required
+                      value={password} onChange={e => setPassword(e.target.value)}
+                      showLabel={t('auth.password.show')} hideLabel={t('auth.password.hide')}
+                    />
                   </motion.div>
                   <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
-                    <TextField label={t('auth.password.confirm')} type="password" autoComplete="new-password" required value={confirm} onChange={e => setConfirm(e.target.value)} sx={inputSx} />
+                    <PasswordField
+                      label={t('auth.password.confirm')} autoComplete="new-password" required
+                      value={confirm} onChange={e => setConfirm(e.target.value)}
+                      showLabel={t('auth.password.show')} hideLabel={t('auth.password.hide')}
+                    />
                   </motion.div>
                   <AnimatePresence mode="wait">
                     {error && (

@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, NavLink, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Button, Divider } from '@mui/material'
-import { Menu as MuiMenuIcon, Close as MuiCloseIcon, Logout as MuiLogoutIcon } from '@mui/icons-material'
+import { Menu as MuiMenuIcon, Close as MuiCloseIcon, Logout as MuiLogoutIcon, VpnKey as MuiKeyIcon } from '@mui/icons-material'
+import { Chip } from '@mui/material'
 import { useAuth } from '../../contexts/AuthContext.jsx'
+import { supabase } from '../../lib/supabase.js'
 import { LogoIcon, DashboardIcon, UsersIcon, LeadsIcon, EditIcon, SettingsIcon, ChartIcon, MapPinIcon } from '../../components/icons/Icons.jsx'
 
 const drawerWidth = 250
@@ -12,8 +14,24 @@ export default function AdminLayout() {
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [pendingResets, setPendingResets] = useState(0)
 
   const handleLogout = async () => { await signOut(); navigate('/') }
+
+  // Счётчик новых заявок на сброс пароля (обновляется раз в минуту)
+  useEffect(() => {
+    let alive = true
+    const load = async () => {
+      const { count } = await supabase
+        .from('password_reset_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending')
+      if (alive) setPendingResets(count || 0)
+    }
+    load()
+    const timer = setInterval(load, 60000)
+    return () => { alive = false; clearInterval(timer) }
+  }, [])
 
   const navItems = [
     { to: '/admin', icon: DashboardIcon, label: 'Dashboard', end: true },
@@ -21,6 +39,7 @@ export default function AdminLayout() {
     { to: '/admin/leads', icon: LeadsIcon, label: 'Leads' },
     { to: '/admin/content', icon: EditIcon, label: 'Content' },
     { to: '/admin/contacts', icon: MapPinIcon, label: 'Contacts' },
+    { to: '/admin/password-resets', icon: (p) => <MuiKeyIcon sx={{ fontSize: 22 }} />, label: 'Сброс пароля', badge: pendingResets },
     { to: '/admin/analytics', icon: ChartIcon, label: 'Analytics' },
     { to: '/admin/settings', icon: SettingsIcon, label: 'Settings' },
   ]
@@ -46,6 +65,11 @@ export default function AdminLayout() {
               }}>
                 <ListItemIcon sx={{ minWidth: 36, color: 'inherit' }}><item.icon width={22} height={22} /></ListItemIcon>
                 <ListItemText primary={item.label} primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: 500 }} />
+                {item.badge > 0 && (
+                  <Chip label={item.badge} size="small"
+                    sx={{ height: 20, minWidth: 20, fontSize: '0.7rem', fontWeight: 700,
+                          background: isActive ? 'rgba(255,255,255,0.25)' : '#e8915a', color: '#fff' }} />
+                )}
               </ListItemButton>
             )}
           </NavLink>

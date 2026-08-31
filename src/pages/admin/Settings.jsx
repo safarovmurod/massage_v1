@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { TextField, Card, CardContent, Typography, Button as MuiButton, Alert, Box, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { supabase } from '../../lib/supabase.js'
+import PasswordField from '../../components/common/PasswordField.jsx'
 
 const inputSx = {
   '& .MuiOutlinedInput-root': {
@@ -51,7 +52,7 @@ export default function AdminSettings() {
         <Card><CardContent>
           <Typography variant="h6" sx={{ mb: 2 }}>Change Password</Typography>
           <Box component="form" onSubmit={handleChangePassword} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <TextField label="New Password" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} sx={inputSx} />
+            <PasswordField label="New Password" value={newPassword} onChange={e => setNewPassword(e.target.value)} sx={inputSx} />
             <MuiButton type="submit" variant="contained" sx={{ alignSelf: 'flex-start', background: 'linear-gradient(135deg, #d4a857, #e8915a)', fontWeight: 600, borderRadius: '999px', px: 4 }}>Update Password</MuiButton>
           </Box>
           {msg && <Alert severity={msg.includes('success') ? 'success' : 'error'} sx={{ mt: 2 }}>{msg}</Alert>}

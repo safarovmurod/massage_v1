@@ -23,6 +23,7 @@ import AdminContent from './pages/admin/Content.jsx'
 import AdminContacts from './pages/admin/Contacts.jsx'
 import AdminAnalytics from './pages/admin/AnalyticsPage.jsx'
 import AdminSettings from './pages/admin/Settings.jsx'
+import AdminPasswordResets from './pages/admin/PasswordResets.jsx'
 
 const pageVariants = {
   initial: { opacity: 0, y: 12 },
@@ -97,6 +98,7 @@ export default function App() {
           <Route path="leads" element={<AdminLeads />} />
           <Route path="content" element={<AdminContent />} />
           <Route path="contacts" element={<AdminContacts />} />
+          <Route path="password-resets" element={<AdminPasswordResets />} />
           <Route path="analytics" element={<AdminAnalytics />} />
           <Route path="settings" element={<AdminSettings />} />
         </Route>

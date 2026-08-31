@@ -5,6 +5,7 @@ import { TextField, Button as MuiButton, Box, Alert, CircularProgress, MenuItem,
 import { useLang } from '../contexts/LanguageContext.jsx'
 import { useAuth } from '../contexts/AuthContext.jsx'
 import { LogoIcon } from '../components/icons/Icons.jsx'
+import PasswordField from '../components/common/PasswordField.jsx'
 import { trackAuthEvent } from '../lib/analytics.js'
 import { isSupabaseConfigured } from '../lib/supabase.js'
 import { translateAuthError } from '../lib/authErrors.js'
@@ -129,7 +130,11 @@ export default function Register() {
                   <TextField label={t('auth.email')} type="email" autoComplete="email" required value={email} onChange={e => setEmail(e.target.value)} sx={inputSx} />
                 </motion.div>
                 <motion.div initial={{ opacity: 0, x: -15 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }}>
-                  <TextField label={t('auth.password')} type="password" autoComplete="new-password" required value={password} onChange={e => setPassword(e.target.value)} sx={inputSx} />
+                  <PasswordField
+                    label={t('auth.password')} autoComplete="new-password" required
+                    value={password} onChange={e => setPassword(e.target.value)}
+                    showLabel={t('auth.password.show')} hideLabel={t('auth.password.hide')}
+                  />
                 </motion.div>
 
                 {/* ——— Дополнительная информация ——— */}
