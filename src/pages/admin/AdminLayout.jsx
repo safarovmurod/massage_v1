@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react'
-import { Outlet, NavLink, useNavigate } from 'react-router-dom'
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { AppBar, Toolbar, Typography, IconButton, Drawer, List, ListItemButton, ListItemIcon, ListItemText, Box, Button, Divider } from '@mui/material'
-import { Menu as MuiMenuIcon, Close as MuiCloseIcon, Logout as MuiLogoutIcon, VpnKey as MuiKeyIcon } from '@mui/icons-material'
-import { Chip } from '@mui/material'
+import { Menu as MuiMenuIcon, Close as MuiCloseIcon, Logout as MuiLogoutIcon, VpnKey as MuiKeyIcon, Language as MuiSiteIcon } from '@mui/icons-material'
+import { Chip, Tooltip } from '@mui/material'
 import { useAuth } from '../../contexts/AuthContext.jsx'
 import { supabase } from '../../lib/supabase.js'
 import { LogoIcon, DashboardIcon, UsersIcon, LeadsIcon, EditIcon, SettingsIcon, ChartIcon, MapPinIcon } from '../../components/icons/Icons.jsx'
@@ -13,6 +13,7 @@ const drawerWidth = 250
 export default function AdminLayout() {
   const { user, profile, signOut } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [mobileOpen, setMobileOpen] = useState(false)
   const [pendingResets, setPendingResets] = useState(0)
 
@@ -34,21 +35,44 @@ export default function AdminLayout() {
   }, [])
 
   const navItems = [
-    { to: '/admin', icon: DashboardIcon, label: 'Dashboard', end: true },
-    { to: '/admin/users', icon: UsersIcon, label: 'Users' },
-    { to: '/admin/leads', icon: LeadsIcon, label: 'Leads' },
-    { to: '/admin/content', icon: EditIcon, label: 'Content' },
-    { to: '/admin/contacts', icon: MapPinIcon, label: 'Contacts' },
-    { to: '/admin/password-resets', icon: (p) => <MuiKeyIcon sx={{ fontSize: 22 }} />, label: 'Сброс пароля', badge: pendingResets },
-    { to: '/admin/analytics', icon: ChartIcon, label: 'Analytics' },
-    { to: '/admin/settings', icon: SettingsIcon, label: 'Settings' },
+    { to: '/admin', icon: DashboardIcon, label: 'Главная', end: true },
+    { to: '/admin/users', icon: UsersIcon, label: 'Клиенты' },
+    { to: '/admin/leads', icon: LeadsIcon, label: 'Заявки' },
+    { to: '/admin/content', icon: EditIcon, label: 'Тексты сайта' },
+    { to: '/admin/contacts', icon: MapPinIcon, label: 'Контакты' },
+    { to: '/admin/password-resets', icon: () => <MuiKeyIcon sx={{ fontSize: 22 }} />, label: 'Сброс пароля', badge: pendingResets },
+    { to: '/admin/analytics', icon: ChartIcon, label: 'Статистика' },
+    { to: '/admin/settings', icon: SettingsIcon, label: 'Настройки' },
   ]
+
+  // Заголовок в шапке = название текущей страницы
+  const currentTitle = (
+    navItems.filter(i => i.to !== '/admin')
+      .find(i => location.pathname.startsWith(i.to))?.label
+  ) || 'Главная'
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#221c2a' }}>
       <Box sx={{ p: 2.5, display: 'flex', alignItems: 'center', gap: 1.25, borderBottom: '1px solid rgba(212,168,87,0.2)' }}>
         <LogoIcon size={32} />
-        <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#f5ede4' }}>Admin Panel</Typography>
+        <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#f5ede4' }}>Админ-панель</Typography>
+      </Box>
+
+      {/* КНОПКА ВОЗВРАТА НА САЙТ */}
+      <Box sx={{ px: 1.5, pt: 1.5 }}>
+        <Button
+          fullWidth variant="contained" href="/" component="a"
+          startIcon={<MuiSiteIcon />}
+          onClick={() => setMobileOpen(false)}
+          sx={{
+            background: 'linear-gradient(135deg, #d4a857, #e8915a)',
+            fontWeight: 700, borderRadius: '12px', py: 1.2, textTransform: 'none',
+            fontSize: '0.88rem', color: '#fff',
+            '&:hover': { background: 'linear-gradient(135deg, #e8c178, #e8915a)', boxShadow: '0 6px 18px rgba(212,168,87,0.35)' },
+          }}
+        >
+          Вернуться на сайт
+        </Button>
       </Box>
       <List sx={{ flex: 1, p: 1.5, gap: 0.5 }}>
         {navItems.map(item => (
@@ -80,7 +104,7 @@ export default function AdminLayout() {
         <Typography sx={{ fontSize: '0.82rem', color: '#8a7f76', mb: 1 }}>{profile?.full_name || user?.email}</Typography>
         <Button fullWidth variant="outlined" size="small" onClick={handleLogout}
           sx={{ borderColor: 'rgba(255,255,255,0.1)', color: '#c4b8ab', '&:hover': { borderColor: '#d4a857', color: '#d4a857' } }}
-          startIcon={<MuiLogoutIcon />}>Logout</Button>
+          startIcon={<MuiLogoutIcon />}>Выйти</Button>
       </Box>
     </Box>
   )
@@ -96,8 +120,29 @@ export default function AdminLayout() {
           <IconButton color="inherit" edge="start" onClick={() => setMobileOpen(!mobileOpen)} sx={{ mr: 2, display: { md: 'none' } }}>
             {mobileOpen ? <MuiCloseIcon /> : <MuiMenuIcon />}
           </IconButton>
-          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, color: '#f5ede4' }}>Dashboard</Typography>
-          <Typography sx={{ fontSize: '0.88rem', color: '#8a7f76' }}>{user?.email}</Typography>
+          <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 700, color: '#f5ede4', fontSize: { xs: '1rem', sm: '1.25rem' } }}>
+            {currentTitle}
+          </Typography>
+          <Typography sx={{ fontSize: '0.88rem', color: '#8a7f76', display: { xs: 'none', md: 'block' }, mr: 1.5 }}>
+            {user?.email}
+          </Typography>
+
+          {/* КНОПКА "НА САЙТ" В ШАПКЕ */}
+          <Tooltip title="Вернуться на сайт">
+            <Button
+              href="/" component="a" variant="outlined" size="small"
+              startIcon={<MuiSiteIcon sx={{ fontSize: 18 }} />}
+              sx={{
+                borderColor: 'rgba(212,168,87,0.5)', color: '#d4a857',
+                borderRadius: '999px', textTransform: 'none', fontWeight: 600,
+                whiteSpace: 'nowrap', px: { xs: 1.5, sm: 2 },
+                '& .MuiButton-startIcon': { mr: { xs: 0, sm: 0.8 } },
+                '&:hover': { borderColor: '#d4a857', background: 'rgba(212,168,87,0.1)' },
+              }}
+            >
+              <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>На сайт</Box>
+            </Button>
+          </Tooltip>
         </Toolbar>
       </AppBar>
 

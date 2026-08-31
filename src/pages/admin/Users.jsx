@@ -10,7 +10,10 @@ import SearchIcon from '@mui/icons-material/Search'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import LockResetIcon from '@mui/icons-material/LockReset'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
+import DeleteIcon from '@mui/icons-material/DeleteOutline'
+import CleaningIcon from '@mui/icons-material/CleaningServices'
 import { supabase } from '../../lib/supabase.js'
+import PasswordField from '../../components/common/PasswordField.jsx'
 
 const inputSx = {
   '& .MuiOutlinedInput-root': {
@@ -94,6 +97,12 @@ export default function AdminUsers() {
   const [newPwd, setNewPwd] = useState('')
   const [pwdSaving, setPwdSaving] = useState(false)
 
+  // Удаление
+  const [delTarget, setDelTarget] = useState(null)   // пользователь на удаление
+  const [delBusy, setDelBusy] = useState(false)
+  const [cleanDialog, setCleanDialog] = useState(false)
+  const [cleanBusy, setCleanBusy] = useState(false)
+
   useEffect(() => { fetchUsers() }, [])
 
   async function fetchUsers() {
@@ -157,6 +166,46 @@ export default function AdminUsers() {
     }
   }
 
+  // Удалить одного пользователя
+  async function deleteUser() {
+    if (!delTarget) return
+    setDelBusy(true)
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_user', { target_user_id: delTarget.id })
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error || 'Не удалось удалить')
+      setUsers((prev) => prev.filter((u) => u.id !== delTarget.id))
+      setToast({ type: 'success', msg: `Пользователь ${data.email} удалён` })
+      setDelTarget(null)
+      setSelected(null)
+    } catch (e) {
+      setToast({ type: 'error', msg: `Ошибка: ${e.message}` })
+    } finally {
+      setDelBusy(false)
+    }
+  }
+
+  // Удалить всех тестовых пользователей одной кнопкой
+  async function cleanTestUsers() {
+    setCleanBusy(true)
+    try {
+      const { data, error } = await supabase.rpc('admin_delete_test_users')
+      if (error) throw error
+      if (!data?.ok) throw new Error(data?.error || 'Не удалось выполнить')
+      if (data.deleted === 0) {
+        setToast({ type: 'info', msg: 'Тестовых пользователей не найдено — всё чисто' })
+      } else {
+        setToast({ type: 'success', msg: `Удалено тестовых аккаунтов: ${data.deleted}` })
+      }
+      setCleanDialog(false)
+      fetchUsers()
+    } catch (e) {
+      setToast({ type: 'error', msg: `Ошибка: ${e.message}` })
+    } finally {
+      setCleanBusy(false)
+    }
+  }
+
   const filtered = useMemo(() => users.filter((u) => {
     const q = search.toLowerCase()
     const hit = !q ||
@@ -217,6 +266,19 @@ export default function AdminUsers() {
           <MenuItem value="user">Клиенты</MenuItem>
           <MenuItem value="admin">Администраторы</MenuItem>
         </TextField>
+
+        {/* Удалить все тестовые аккаунты одной кнопкой */}
+        <MuiButton
+          variant="outlined" size="small" startIcon={<CleaningIcon sx={{ fontSize: 18 }} />}
+          onClick={() => setCleanDialog(true)}
+          sx={{
+            borderColor: 'rgba(239,83,80,0.4)', color: '#ef5350', textTransform: 'none',
+            borderRadius: '999px', px: 2, whiteSpace: 'nowrap',
+            '&:hover': { borderColor: '#ef5350', background: 'rgba(239,83,80,0.08)' },
+          }}
+        >
+          Удалить тестовые
+        </MuiButton>
       </Box>
 
       {filtered.length === 0 ? (
@@ -274,11 +336,18 @@ export default function AdminUsers() {
                       <TableCell sx={{ color: '#8a7f76', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
                         {fmtDate(u.created_at)}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ whiteSpace: 'nowrap' }}>
                         <Tooltip title="Полная информация">
                           <IconButton size="small" sx={{ color: '#d4a857' }}
                             onClick={(e) => { e.stopPropagation(); openDetails(u) }}>
                             <VisibilityIcon sx={{ fontSize: 19 }} />
+                          </IconButton>
+                        </Tooltip>
+                        <Tooltip title={u.role === 'admin' ? 'Администратора удалять опасно' : 'Удалить пользователя'}>
+                          <IconButton size="small"
+                            sx={{ color: '#8a7f76', '&:hover': { color: '#ef5350', background: 'rgba(239,83,80,0.08)' } }}
+                            onClick={(e) => { e.stopPropagation(); setDelTarget(u) }}>
+                            <DeleteIcon sx={{ fontSize: 19 }} />
                           </IconButton>
                         </Tooltip>
                       </TableCell>
@@ -387,11 +456,17 @@ export default function AdminUsers() {
                         }
                       />
 
-                      <Box sx={{ mt: 2 }}>
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1.5, flexWrap: 'wrap' }}>
                         <MuiButton variant="outlined" startIcon={<LockResetIcon />}
                           onClick={() => setPwdDialog(true)}
                           sx={{ borderColor: 'rgba(212,168,87,0.4)', color: '#d4a857', textTransform: 'none' }}>
                           Сбросить пароль
+                        </MuiButton>
+                        <MuiButton variant="outlined" startIcon={<DeleteIcon />}
+                          onClick={() => setDelTarget(selected)}
+                          sx={{ borderColor: 'rgba(239,83,80,0.4)', color: '#ef5350', textTransform: 'none',
+                                '&:hover': { borderColor: '#ef5350', background: 'rgba(239,83,80,0.08)' } }}>
+                          Удалить пользователя
                         </MuiButton>
                       </Box>
                     </Box>
@@ -473,6 +548,64 @@ export default function AdminUsers() {
           <MuiButton variant="contained" onClick={resetPassword} disabled={pwdSaving || newPwd.length < 6}
             sx={{ background: 'linear-gradient(135deg,#d4a857,#e8915a)', fontWeight: 600, textTransform: 'none' }}>
             {pwdSaving ? 'Сохранение…' : 'Установить пароль'}
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* ДИАЛОГ: удалить одного пользователя */}
+      <Dialog open={!!delTarget} onClose={() => setDelTarget(null)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { background: '#221c2a', border: '1px solid rgba(239,83,80,0.3)', borderRadius: '16px' } }}>
+        <DialogTitle sx={{ color: '#f5ede4' }}>Удалить пользователя?</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ fontSize: '0.88rem', color: '#c4b8ab', mb: 1 }}>
+            {delTarget?.full_name || '— без имени —'}
+          </Typography>
+          <Typography sx={{ fontSize: '0.82rem', color: '#8a7f76', mb: 2 }}>
+            {delTarget?.email}
+          </Typography>
+          <Alert severity="error" sx={{ fontSize: '0.8rem' }}>
+            Аккаунт, профиль и вся история действий будут удалены НАВСЕГДА.
+            Отменить это действие невозможно.
+          </Alert>
+          {delTarget?.role === 'admin' && (
+            <Alert severity="warning" sx={{ fontSize: '0.8rem', mt: 1.5 }}>
+              Это администратор. Последнего админа система удалить не даст.
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <MuiButton onClick={() => setDelTarget(null)} sx={{ color: '#8a7f76', textTransform: 'none' }}>
+            Отмена
+          </MuiButton>
+          <MuiButton variant="contained" onClick={deleteUser} disabled={delBusy}
+            startIcon={<DeleteIcon />}
+            sx={{ background: '#ef5350', fontWeight: 600, textTransform: 'none', '&:hover': { background: '#d32f2f' } }}>
+            {delBusy ? 'Удаление…' : 'Удалить навсегда'}
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* ДИАЛОГ: удалить все тестовые аккаунты */}
+      <Dialog open={cleanDialog} onClose={() => setCleanDialog(false)} maxWidth="xs" fullWidth
+        PaperProps={{ sx: { background: '#221c2a', border: '1px solid rgba(239,83,80,0.3)', borderRadius: '16px' } }}>
+        <DialogTitle sx={{ color: '#f5ede4' }}>Удалить тестовые аккаунты?</DialogTitle>
+        <DialogContent>
+          <Typography sx={{ fontSize: '0.85rem', color: '#c4b8ab', mb: 2 }}>
+            Будут удалены все аккаунты, чей email начинается с <b>test</b> — например
+            <span style={{ color: '#d4a857' }}> test1788198399@gmail.com</span>.
+          </Typography>
+          <Alert severity="info" sx={{ fontSize: '0.8rem' }}>
+            Администраторы и ваш собственный аккаунт НЕ будут затронуты. Реальные клиенты тоже в безопасности.
+          </Alert>
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 2.5 }}>
+          <MuiButton onClick={() => setCleanDialog(false)} sx={{ color: '#8a7f76', textTransform: 'none' }}>
+            Отмена
+          </MuiButton>
+          <MuiButton variant="contained" onClick={cleanTestUsers} disabled={cleanBusy}
+            startIcon={<CleaningIcon />}
+            sx={{ background: '#ef5350', fontWeight: 600, textTransform: 'none', '&:hover': { background: '#d32f2f' } }}>
+            {cleanBusy ? 'Очистка…' : 'Очистить'}
           </MuiButton>
         </DialogActions>
       </Dialog>
