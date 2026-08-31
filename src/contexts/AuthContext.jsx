@@ -7,15 +7,17 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [passwordRecovery, setPasswordRecovery] = useState(false)
 
   const fetchProfile = useCallback(async (userId) => {
     if (!userId) { setProfile(null); return }
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
+      if (error) { setProfile(null); return }
       setProfile(data)
     } catch {
       setProfile(null)
@@ -32,9 +34,11 @@ export function AuthProvider({ children }) {
           setUser(session?.user || null)
           if (session?.user) {
             await fetchProfile(session.user.id)
-            await supabase.from('profiles')
+            // Best-effort last_login update — never blocks auth flow
+            supabase.from('profiles')
               .update({ last_login: new Date().toISOString() })
               .eq('id', session.user.id)
+              .then(() => {})
           }
         }
       } catch {
@@ -46,7 +50,10 @@ export function AuthProvider({ children }) {
 
     init()
 
-    const { data: listener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+    const { data: listener } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        setPasswordRecovery(true)
+      }
       setUser(session?.user || null)
       if (session?.user) {
         await fetchProfile(session.user.id)
@@ -64,14 +71,8 @@ export function AuthProvider({ children }) {
       options: { data: { full_name: fullName } }
     })
     if (error) throw error
-    if (data.user) {
-      await supabase.from('profiles').insert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        role: 'user'
-      })
-    }
+    // Profile row is created automatically by the DB trigger (handle_new_user).
+    // No manual insert here — avoids duplicate-key conflicts with the trigger.
     return data
   }, [])
 
@@ -89,7 +90,7 @@ export function AuthProvider({ children }) {
 
   const resetPassword = useCallback(async (email) => {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`
+      redirectTo: `${window.location.origin}/reset-password`
     })
     if (error) throw error
   }, [])
@@ -97,10 +98,11 @@ export function AuthProvider({ children }) {
   const updatePassword = useCallback(async (newPassword) => {
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) throw error
+    setPasswordRecovery(false)
   }, [])
 
   const value = {
-    user, profile, loading,
+    user, profile, loading, passwordRecovery,
     signUp, signIn, signOut, resetPassword, updatePassword,
     refreshProfile: () => user && fetchProfile(user.id)
   }

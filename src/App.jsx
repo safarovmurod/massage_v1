@@ -1,6 +1,8 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { CircularProgress } from '@mui/material'
 import { useAuth } from './contexts/AuthContext.jsx'
+import { useLang } from './contexts/LanguageContext.jsx'
 import Header from './components/layout/Header.jsx'
 import Footer from './components/layout/Footer.jsx'
 import WhatsAppFloat from './components/common/WhatsAppFloat.jsx'
@@ -23,9 +25,9 @@ import AdminAnalytics from './pages/admin/AnalyticsPage.jsx'
 import AdminSettings from './pages/admin/Settings.jsx'
 
 const pageVariants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1, transition: { duration: 0.3 } },
-  exit: { opacity: 0, transition: { duration: 0.2 } },
+  initial: { opacity: 0, y: 12 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  exit: { opacity: 0, y: -8, transition: { duration: 0.2, ease: 'easeIn' } },
 }
 
 function PageWrapper({ children }) {
@@ -38,17 +40,26 @@ function PageWrapper({ children }) {
 
 function ProtectedRoute({ children }) {
   const { user, profile, loading } = useAuth()
+  const { t } = useLang()
   if (loading) return (
-    <div className="flex items-center justify-center min-h-screen text-secondary-soft text-xl">
-      Загрузка...
-    </div>
+    <motion.div
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+      className="flex flex-col items-center justify-center gap-4 min-h-screen text-secondary-soft"
+    >
+      <CircularProgress size={40} sx={{ color: '#d4a857' }} />
+      <span className="text-base">{t('auth.loading')}</span>
+    </motion.div>
   )
   if (!user) return <Navigate to="/register" replace />
   if (profile?.role !== 'admin') return (
-    <div className="flex flex-col items-center justify-center min-h-screen text-center px-10">
-      <h2 className="text-2xl mb-3 text-orange-400">Access denied</h2>
-      <p>У вас нет прав администратора.</p>
-    </div>
+    <motion.div
+      initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center justify-center min-h-screen text-center px-10"
+    >
+      <h2 className="text-2xl mb-3 text-orange-400">{t('auth.access.denied.title')}</h2>
+      <p className="mb-5">{t('auth.access.denied.desc')}</p>
+      <a href="/" className="btn btn-secondary">{t('auth.access.denied.btn')}</a>
+    </motion.div>
   )
   return children
 }
