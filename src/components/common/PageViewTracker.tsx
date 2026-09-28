@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { trackPageView, trackEvent, getSource } from '../../lib/analytics.ts'
+import { useAuth } from '../../contexts/AuthContext.tsx'
 
 // Записывает просмотр страницы при каждом переходе.
 // Раньше на сайте это нигде не вызывалось, поэтому статистика посещений
@@ -8,9 +9,11 @@ import { trackPageView, trackEvent, getSource } from '../../lib/analytics.ts'
 export default function PageViewTracker() {
   const location = useLocation()
   const lastPath = useRef('')
+  const { user, profile, loading } = useAuth()
 
   useEffect(() => {
     // Админку не считаем — это не посетители сайта
+    if (loading || (user && !profile) || profile?.role === 'admin') return
     if (location.pathname.startsWith('/admin')) return
     getSource()
     function recordView() {
@@ -33,7 +36,7 @@ export default function PageViewTracker() {
       window.removeEventListener('analytics-consent', recordView)
       document.removeEventListener('visibilitychange', heartbeat)
     }
-  }, [location.pathname, location.search])
+  }, [location.pathname, location.search, loading, user, profile])
 
   return null
 }

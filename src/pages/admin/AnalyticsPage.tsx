@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
-import { Alert, Box, Button, Card, CardContent, Chip, Grid, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Select, MenuItem } from '@mui/material'
+import { Alert, Box, Button, Card, CardContent, Chip, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Select, MenuItem } from '@mui/material'
 import { supabase } from '../../lib/supabase.ts'
+import AnalyticsOverview from '../../components/admin/AnalyticsOverview.tsx'
 
 const labels = { page_view: 'Просмотр', heartbeat: 'Активная страница', whatsapp_click: 'Клик в WhatsApp', instagram_click: 'Клик в Instagram', form_submit: 'Заявка', language_change: 'Смена языка', login: 'Вход', registration: 'Регистрация' }
 const sources = { instagram: 'Instagram', whatsapp: 'WhatsApp', telegram: 'Telegram', google: 'Google', facebook: 'Facebook', yandex: 'Яндекс', unknown: 'Источник не передан', direct: 'Прямой / источник не передан' }
@@ -23,7 +24,7 @@ export default function AdminAnalytics() {
     async function load() {
       setLoading(true)
       try {
-        let query = supabase.from('analytics_events').select('*', { count: 'exact' }).neq('event_type', 'heartbeat')
+        let query = supabase.from('analytics_visitor_events').select('*', { count: 'exact' }).neq('event_type', 'heartbeat')
         if (filter !== 'all') query = query.eq('event_type', filter)
         const [stats, rows] = await Promise.all([
           supabase.rpc('admin_analytics_summary'),
@@ -54,13 +55,6 @@ export default function AdminAnalytics() {
     return () => clearInterval(timer)
   }, [])
 
-  const cards = summary ? [
-    { title: 'Все просмотры', value: summary.totalVisits },
-    { title: 'Уникальные браузеры', value: summary.uniqueVisitors },
-    { title: 'Зарегистрированные клиенты', value: summary.totalUsers },
-    { title: 'Просмотры сегодня', value: summary.viewsToday },
-  ] : []
-
   return <Stack gap="20px">
     <Stack direction="row" gap="12px" alignItems="center" flexWrap="wrap">
       <Typography component="h1" sx={{ fontSize: '26px', fontWeight: 700 }}>Посещения и источники</Typography>
@@ -70,10 +64,7 @@ export default function AdminAnalytics() {
     {error && <Alert severity="error">{error}</Alert>}
     {loading && <Typography role="status">Обновление…</Typography>}
     <Alert severity="info">Instagram и WhatsApp не передают имя аккаунта или номер посетителя при открытии ссылки. Имя ниже — только из аккаунта сайта после входа. Телефон — введён пользователем и не подтверждён WhatsApp. Источник определяется по метке ссылки или referrer и не подтверждает личность.</Alert>
-    <Grid container spacing={2}>{cards.map(card => <Grid item xs={6} lg={3} key={card.title}><Card sx={{ height: '100%' }}><CardContent>
-      <Typography sx={{ fontSize: '13px', color: '#c4b8ab' }}>{card.title}</Typography>
-      <Typography sx={{ fontSize: '30px', fontWeight: 700, color: '#d4a857' }}>{card.value}</Typography>
-    </CardContent></Card></Grid>)}</Grid>
+    <AnalyticsOverview summary={summary} />
     {summary && <Card><CardContent>
       <Typography component="h2" sx={{ fontSize: '20px', fontWeight: 700, mb: '16px' }}>Откуда открывали сайт</Typography>
       {summary.sources.length === 0 && <Typography>Записанных просмотров пока нет.</Typography>}

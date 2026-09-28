@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase.ts'
 import { logUserActivity, bumpLoginCounter } from '../lib/userActivity.ts'
-import { trackAuthEvent } from '../lib/analytics.ts'
+import { trackAuthEvent, excludeAdminFromAnalytics } from '../lib/analytics.ts'
 
 const AuthContext = createContext<any>(null)
 
@@ -22,6 +22,7 @@ export function AuthProvider({ children }) {
       if (error) { setProfile(null); return }
       const { data: sessionData } = await supabase.auth.getSession()
       if (sessionData.session?.user.id !== userId) return
+      if (data.role === 'admin') await excludeAdminFromAnalytics(userId)
       if (data.is_active === false) {
         setProfile(null)
         await supabase.auth.signOut()

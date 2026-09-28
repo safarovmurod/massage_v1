@@ -1,6 +1,20 @@
 import { detectSource } from './attribution.ts'
 import { supabase } from './supabase.ts'
 
+// This browser remains excluded after the administrator signs out.
+export async function excludeAdminFromAnalytics(userId) {
+  try {
+    localStorage.setItem('analyticsAdmin', 'true')
+    const visitorId = localStorage.getItem('visitorId')
+    if (!visitorId) return
+    const { error } = await supabase.from('analytics_excluded_visitors').upsert(
+      { visitor_id: visitorId, excluded_by: userId },
+      { onConflict: 'visitor_id', ignoreDuplicates: true },
+    )
+    if (error) console.warn('[analytics] Исключение браузера не сохранено:', error.code)
+  } catch { /* The server also rejects events from admin accounts. */ }
+}
+
 // --- Кто зашёл ---
 // Постоянный id посетителя в его браузере. Нужен, чтобы отличать
 // «10 просмотров одного человека» от «10 разных людей».
@@ -58,6 +72,8 @@ async function getUserId() {
 export async function trackEvent(eventType, eventData = {}) {
   try {
     if (localStorage.getItem('cookieConsent') !== 'accepted') return
+    if (localStorage.getItem('analyticsAdmin') === 'true') return
+    if (['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)) return
     if (window.location.pathname.startsWith('/admin')) return
     const visitorId = getVisitorId()
     if (!visitorId) return

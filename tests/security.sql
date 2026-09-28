@@ -55,7 +55,7 @@ SET LOCAL ROLE authenticated;
 DO $$ DECLARE stats jsonb; BEGIN
   IF NOT public.is_admin() THEN RAISE EXCEPTION 'active admin denied'; END IF;
   stats := public.admin_analytics_summary();
-  IF (stats->>'totalVisits')::bigint <> (SELECT count(*) FROM public.analytics_events WHERE event_type='page_view') THEN
+  IF (stats->>'totalVisits')::bigint <> (SELECT count(*) FROM public.analytics_visitor_events WHERE event_type='page_view') THEN
     RAISE EXCEPTION 'truncated totals';
   END IF;
   IF jsonb_array_length(stats->'days') <> 7 THEN RAISE EXCEPTION 'missing chart days'; END IF;

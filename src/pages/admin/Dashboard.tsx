@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { Box, Button, Card, CardContent, Typography, Grid, Alert, Stack } from '@mui/material'
 import { supabase } from '../../lib/supabase.ts'
+import AnalyticsOverview from '../../components/admin/AnalyticsOverview.tsx'
 
 const shortcuts = [
   { to: '/admin/leads', title: 'Заявки', text: 'Кто хочет записаться: имя, телефон и статус заявки.' },
@@ -31,16 +32,6 @@ export default function AdminDashboard() {
     return () => clearInterval(timer)
   }, [])
 
-  const cards = stats ? [
-    { label: 'Клиентов зарегистрировано', value: stats.totalUsers },
-    { label: 'Новых сегодня', value: stats.newToday },
-    { label: 'Новых за 30 дней', value: stats.newMonth },
-    { label: 'Просмотров страниц', value: stats.totalVisits },
-    { label: 'Кликов в WhatsApp', value: stats.whatsappClicks },
-    { label: 'Кликов в Instagram', value: stats.instagramClicks },
-    { label: 'Заявок в базе', value: stats.formSubmits },
-    { label: 'Активных браузеров за 2 мин.', value: stats.onlineNow },
-  ] : []
   const maxVisits = stats ? Math.max(1, ...stats.days.map(day => Math.max(day.visits, day.clicks))) : 1
 
   return <Stack gap="24px">
@@ -63,13 +54,7 @@ export default function AdminDashboard() {
     </Stack>
     {error && <Alert severity="error">{error} {stats && 'Ниже — последнее успешное обновление.'}</Alert>}
     {!stats && !error && <Typography role="status">Загрузка статистики…</Typography>}
-    <Grid container spacing={2}>
-      {cards.map(card => <Grid item xs={6} lg={3} key={card.label}><Card sx={{ height: '100%' }}><CardContent>
-        <Typography sx={{ fontSize: '13px', color: '#c4b8ab' }}>{card.label}</Typography>
-        <Typography sx={{ fontSize: '32px', fontWeight: 700, color: '#d4a857' }}>{card.value}</Typography>
-      </CardContent></Card></Grid>)}
-    </Grid>
-    <Alert severity="info">Посещения записываются после согласия на аналитику. Уникальный браузер не равен уникальному человеку. Активность за 2 минуты — приблизительное присутствие, а не точный список людей онлайн. Клик в WhatsApp не означает отправленное сообщение.</Alert>
+    <AnalyticsOverview summary={stats} />
     {stats && <Card><CardContent>
       <Typography component="h2" sx={{ fontSize: '20px', fontWeight: 700, mb: '20px' }}>Просмотры за 7 дней · Душанбе</Typography>
       <Box sx={{ display: 'flex', alignItems: 'flex-end', gap: '12px', height: '200px' }}>
